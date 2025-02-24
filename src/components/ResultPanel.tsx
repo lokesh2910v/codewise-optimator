@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, Infinity, ChartBar } from 'lucide-react';
+import { Clock, Infinity, ChartBar, HardDrive } from 'lucide-react';
 
 interface ResultPanelProps {
   output: string;
@@ -39,30 +39,38 @@ const ResultPanel: React.FC<ResultPanelProps> = ({
           </div>
         )}
 
-        {!error && executionTime && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="p-4 bg-[#2A2F3C] rounded-lg">
+        {!error && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 bg-[#2A2F3C] rounded-lg transition-all hover:bg-[#323846]">
               <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-[#9b87f5]" />
+                <Clock className="w-5 h-5 text-[#9b87f5]" />
                 <h3 className="text-sm font-semibold text-[#9b87f5]">Execution Time</h3>
               </div>
-              <p className="text-white font-mono">{executionTime}ms</p>
+              <p className="text-white font-mono">{executionTime || '0'}ms</p>
             </div>
             
-            <div className="p-4 bg-[#2A2F3C] rounded-lg">
+            <div className="p-4 bg-[#2A2F3C] rounded-lg transition-all hover:bg-[#323846]">
               <div className="flex items-center gap-2 mb-2">
-                <ChartBar className="w-4 h-4 text-[#7E69AB]" />
-                <h3 className="text-sm font-semibold text-[#7E69AB]">Space Complexity</h3>
+                <HardDrive className="w-5 h-5 text-[#9b87f5]" />
+                <h3 className="text-sm font-semibold text-[#9b87f5]">Space Consumed</h3>
               </div>
-              <p className="text-white font-mono">{spaceComplexity}</p>
+              <p className="text-white font-mono">{spaceComplexity || 'N/A'}</p>
             </div>
             
-            <div className="p-4 bg-[#2A2F3C] rounded-lg">
+            <div className="p-4 bg-[#2A2F3C] rounded-lg transition-all hover:bg-[#323846]">
               <div className="flex items-center gap-2 mb-2">
-                <Infinity className="w-4 h-4 text-[#6E59A5]" />
-                <h3 className="text-sm font-semibold text-[#6E59A5]">Time Complexity</h3>
+                <ChartBar className="w-5 h-5 text-[#9b87f5]" />
+                <h3 className="text-sm font-semibold text-[#9b87f5]">Space Complexity</h3>
               </div>
-              <p className="text-white font-mono">{timeComplexity}</p>
+              <p className="text-white font-mono">{spaceComplexity || 'N/A'}</p>
+            </div>
+            
+            <div className="p-4 bg-[#2A2F3C] rounded-lg transition-all hover:bg-[#323846]">
+              <div className="flex items-center gap-2 mb-2">
+                <Infinity className="w-5 h-5 text-[#9b87f5]" />
+                <h3 className="text-sm font-semibold text-[#9b87f5]">Time Complexity</h3>
+              </div>
+              <p className="text-white font-mono">{timeComplexity || 'N/A'}</p>
             </div>
           </div>
         )}

@@ -29,8 +29,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isLoading }) => {
 
   return (
     <Card className="w-full h-[500px] bg-[#1A1F2C]/80 backdrop-blur-sm rounded-lg overflow-hidden border border-[#403E43]">
-      <div className="flex justify-between items-center p-4 border-b border-[#403E43]">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border-b border-[#403E43] gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
           <span className="text-white font-mono font-semibold">Code Editor</span>
           <Select value={language} onValueChange={setLanguage}>
             <SelectTrigger className="w-[180px] bg-[#2A2F3C] border-[#403E43] text-white">
@@ -52,7 +52,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isLoading }) => {
         <Button 
           onClick={() => onRunCode(code, language)}
           disabled={isLoading}
-          className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
+          className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white w-full sm:w-auto"
         >
           {isLoading ? (
             <>
