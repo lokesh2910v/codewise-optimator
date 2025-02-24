@@ -12,7 +12,17 @@ const Index = () => {
     error: ''
   });
 
-  const analyzeCode = async (code: string) => {
+  const getLanguageVersion = (language: string) => {
+    const versions: Record<string, string> = {
+      'python': '3.10',
+      'javascript': '18.15.0',
+      'java': '15.0.2',
+      'cpp': '10.2.0'
+    };
+    return versions[language] || '3.10';
+  };
+
+  const analyzeCode = async (code: string, language: string) => {
     setIsLoading(true);
     try {
       // Execute code with Piston API
@@ -22,8 +32,8 @@ const Index = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          language: 'python',
-          version: '3.10',
+          language: language,
+          version: getLanguageVersion(language),
           files: [
             {
               content: code,
@@ -45,7 +55,7 @@ const Index = () => {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Analyze this code error and provide a solution:\nCode:\n${code}\nError:\n${executionData.run.stderr}`
+                text: `Analyze this ${language} code error and provide a solution:\nCode:\n${code}\nError:\n${executionData.run.stderr}`
               }]
             }]
           })
@@ -68,7 +78,7 @@ const Index = () => {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Analyze this code and suggest optimizations:\n${code}`
+                text: `Analyze this ${language} code and suggest optimizations:\n${code}`
               }]
             }]
           })
