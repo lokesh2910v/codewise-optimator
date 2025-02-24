@@ -28,20 +28,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isLoading }) => {
   ];
 
   return (
-    <Card className="w-full h-[500px] bg-editor-bg rounded-lg overflow-hidden">
-      <div className="flex justify-between items-center p-2 border-b border-gray-700">
+    <Card className="w-full h-[500px] bg-[#1A1F2C]/80 backdrop-blur-sm rounded-lg overflow-hidden border border-[#403E43]">
+      <div className="flex justify-between items-center p-4 border-b border-[#403E43]">
         <div className="flex items-center gap-4">
-          <span className="text-editor-text font-mono">Code Editor</span>
+          <span className="text-white font-mono font-semibold">Code Editor</span>
           <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+            <SelectTrigger className="w-[180px] bg-[#2A2F3C] border-[#403E43] text-white">
               <SelectValue placeholder="Select language" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-700">
+            <SelectContent className="bg-[#2A2F3C] border-[#403E43]">
               {languages.map((lang) => (
                 <SelectItem 
                   key={lang.value} 
                   value={lang.value}
-                  className="text-white hover:bg-gray-700"
+                  className="text-white hover:bg-[#403E43]"
                 >
                   {lang.label}
                 </SelectItem>
@@ -52,7 +52,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isLoading }) => {
         <Button 
           onClick={() => onRunCode(code, language)}
           disabled={isLoading}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
         >
           {isLoading ? (
             <>
@@ -67,7 +67,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isLoading }) => {
       <textarea
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        className="w-full h-[calc(100%-48px)] bg-editor-bg text-editor-text p-4 font-mono text-sm resize-none focus:outline-none"
+        className="w-full h-[calc(100%-72px)] bg-[#1A1F2C] text-white p-4 font-mono text-sm resize-none focus:outline-none"
         spellCheck="false"
       />
     </Card>

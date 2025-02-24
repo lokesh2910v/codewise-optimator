@@ -3,12 +3,15 @@ import React, { useState } from 'react';
 import CodeEditor from '@/components/CodeEditor';
 import ResultPanel from '@/components/ResultPanel';
 import { toast } from 'sonner';
+import { Clock, Infinity, ChartBar } from 'lucide-react';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState({
     output: '',
-    optimization: '',
+    executionTime: '',
+    spaceComplexity: '',
+    timeComplexity: '',
     error: ''
   });
 
@@ -22,10 +25,44 @@ const Index = () => {
     return versions[language] || '3.10';
   };
 
+  const analyzeComplexity = (code: string, language: string) => {
+    // Simple complexity analysis based on loops and nested structures
+    const lines = code.split('\n');
+    let maxNesting = 0;
+    let currentNesting = 0;
+    const loopKeywords = {
+      'python': ['for', 'while'],
+      'javascript': ['for', 'while', 'forEach'],
+      'java': ['for', 'while', 'forEach'],
+      'cpp': ['for', 'while']
+    };
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (loopKeywords[language as keyof typeof loopKeywords]?.some(keyword => trimmedLine.startsWith(keyword))) {
+        currentNesting++;
+        maxNesting = Math.max(maxNesting, currentNesting);
+      }
+      if (trimmedLine.includes('}') || trimmedLine.endsWith(':')) {
+        currentNesting = Math.max(0, currentNesting - 1);
+      }
+    }
+
+    const complexities = {
+      0: 'O(1)',
+      1: 'O(n)',
+      2: 'O(n²)',
+      3: 'O(n³)',
+    };
+
+    return complexities[maxNesting as keyof typeof complexities] || 'O(n^k)';
+  };
+
   const analyzeCode = async (code: string, language: string) => {
     setIsLoading(true);
+    const startTime = performance.now();
+
     try {
-      // Execute code with Piston API
       const executionResponse = await fetch('https://emkc.org/api/v2/piston/execute', {
         method: 'POST',
         headers: {
@@ -34,62 +71,31 @@ const Index = () => {
         body: JSON.stringify({
           language: language,
           version: getLanguageVersion(language),
-          files: [
-            {
-              content: code,
-            },
-          ],
+          files: [{ content: code }],
         }),
       });
 
       const executionData = await executionResponse.json();
+      const endTime = performance.now();
+      const executionTimeMs = (endTime - startTime).toFixed(2);
       
       if (executionData.run.stderr) {
-        // If there's an execution error, just show it without AI analysis
         setResult({
           output: '',
           error: executionData.run.stderr,
-          optimization: ''
+          executionTime: executionTimeMs,
+          spaceComplexity: 'N/A',
+          timeComplexity: 'N/A'
         });
       } else {
-        // If code runs successfully, just show the output without AI optimization
+        const timeComplexity = analyzeComplexity(code, language);
         setResult({
           output: executionData.run.stdout,
           error: '',
-          optimization: ''
+          executionTime: executionTimeMs,
+          spaceComplexity: 'O(n)', // Basic estimation
+          timeComplexity
         });
-      }
-
-      // Only attempt AI analysis if API key is present
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (apiKey) {
-        try {
-          const aiResponse = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `Analyze this ${language} code and suggest optimizations:\n${code}`
-                }]
-              }]
-            })
-          });
-
-          const aiData = await aiResponse.json();
-          if (aiData.candidates && aiData.candidates[0]) {
-            setResult(prev => ({
-              ...prev,
-              optimization: aiData.candidates[0].content.parts[0].text
-            }));
-          }
-        } catch (aiError) {
-          console.error('AI Analysis error:', aiError);
-          // Don't show AI errors to user, just silently fail AI analysis
-        }
       }
     } catch (error) {
       console.error('Error:', error);
@@ -100,14 +106,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#1A1F2C] to-[#121212] text-white p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#6E59A5]">
             Code Analyzer
           </h1>
-          <p className="text-gray-400">
-            Write your code, get instant analysis and optimization suggestions
+          <p className="text-[#8E9196]">
+            Write your code, get instant analysis with complexity metrics
           </p>
         </div>
         
