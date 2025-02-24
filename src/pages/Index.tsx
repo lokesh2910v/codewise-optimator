@@ -45,51 +45,51 @@ const Index = () => {
       const executionData = await executionResponse.json();
       
       if (executionData.run.stderr) {
-        // If there's an error, get AI suggestions
-        const aiResponse = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_GEMINI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Analyze this ${language} code error and provide a solution:\nCode:\n${code}\nError:\n${executionData.run.stderr}`
-              }]
-            }]
-          })
-        });
-
-        const aiData = await aiResponse.json();
+        // If there's an execution error, just show it without AI analysis
         setResult({
           output: '',
           error: executionData.run.stderr,
-          optimization: aiData.candidates[0].content.parts[0].text
+          optimization: ''
         });
       } else {
-        // If code runs successfully, get optimization suggestions
-        const aiResponse = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_GEMINI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Analyze this ${language} code and suggest optimizations:\n${code}`
-              }]
-            }]
-          })
-        });
-
-        const aiData = await aiResponse.json();
+        // If code runs successfully, just show the output without AI optimization
         setResult({
           output: executionData.run.stdout,
           error: '',
-          optimization: aiData.candidates[0].content.parts[0].text
+          optimization: ''
         });
+      }
+
+      // Only attempt AI analysis if API key is present
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (apiKey) {
+        try {
+          const aiResponse = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: `Analyze this ${language} code and suggest optimizations:\n${code}`
+                }]
+              }]
+            })
+          });
+
+          const aiData = await aiResponse.json();
+          if (aiData.candidates && aiData.candidates[0]) {
+            setResult(prev => ({
+              ...prev,
+              optimization: aiData.candidates[0].content.parts[0].text
+            }));
+          }
+        } catch (aiError) {
+          console.error('AI Analysis error:', aiError);
+          // Don't show AI errors to user, just silently fail AI analysis
+        }
       }
     } catch (error) {
       console.error('Error:', error);
