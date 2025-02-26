@@ -12,7 +12,9 @@ const Index = () => {
     executionTime: '',
     spaceComplexity: '',
     timeComplexity: '',
-    error: ''
+    memoryUsed: 0,
+    error: '',
+    aiAnalysis: ''
   });
 
   const getLanguageVersion = (language: string) => {
@@ -26,7 +28,6 @@ const Index = () => {
   };
 
   const analyzeComplexity = (code: string, language: string) => {
-    // Simple complexity analysis based on loops and nested structures
     const lines = code.split('\n');
     let maxNesting = 0;
     let currentNesting = 0;
@@ -58,6 +59,32 @@ const Index = () => {
     return complexities[maxNesting as keyof typeof complexities] || 'O(n^k)';
   };
 
+  const getAIAnalysis = async (code: string, language: string, error: string | null, complexity: any) => {
+    try {
+      const response = await fetch('/functions/analyze-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code,
+          language,
+          error,
+          complexity: {
+            timeComplexity: complexity,
+            spaceComplexity: 'O(n)',
+          },
+        }),
+      });
+
+      const data = await response.json();
+      return data.analysis;
+    } catch (error) {
+      console.error('AI Analysis error:', error);
+      return 'AI analysis unavailable at the moment.';
+    }
+  };
+
   const analyzeCode = async (code: string, language: string) => {
     setIsLoading(true);
     const startTime = performance.now();
@@ -78,23 +105,35 @@ const Index = () => {
       const executionData = await executionResponse.json();
       const endTime = performance.now();
       const executionTimeMs = (endTime - startTime).toFixed(2);
+      const timeComplexity = analyzeComplexity(code, language);
       
+      // Get AI analysis
+      const aiAnalysis = await getAIAnalysis(
+        code,
+        language,
+        executionData.run.stderr || null,
+        timeComplexity
+      );
+
       if (executionData.run.stderr) {
         setResult({
           output: '',
           error: executionData.run.stderr,
           executionTime: executionTimeMs,
           spaceComplexity: 'N/A',
-          timeComplexity: 'N/A'
+          timeComplexity: 'N/A',
+          memoryUsed: 0,
+          aiAnalysis
         });
       } else {
-        const timeComplexity = analyzeComplexity(code, language);
         setResult({
           output: executionData.run.stdout,
           error: '',
           executionTime: executionTimeMs,
           spaceComplexity: 'O(n)', // Basic estimation
-          timeComplexity
+          timeComplexity,
+          memoryUsed: executionData.run.memory / 1024, // Convert to KB
+          aiAnalysis
         });
       }
     } catch (error) {
@@ -113,7 +152,7 @@ const Index = () => {
             Code Analyzer
           </h1>
           <p className="text-[#8E9196]">
-            Write your code, get instant analysis with complexity metrics
+            Write your code, get instant analysis with complexity metrics and AI optimization suggestions
           </p>
         </div>
         

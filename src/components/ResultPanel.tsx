@@ -2,15 +2,16 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, Infinity, ChartBar, HardDrive } from 'lucide-react';
+import { Clock, Infinity, ChartBar, HardDrive, Cpu } from 'lucide-react';
 
 interface ResultPanelProps {
   output: string;
   executionTime?: string;
   spaceComplexity?: string;
   timeComplexity?: string;
-  memoryUsed?: number; // Added for actual memory consumption
+  memoryUsed?: number;
   error?: string;
+  aiAnalysis?: string;
 }
 
 const ResultPanel: React.FC<ResultPanelProps> = ({ 
@@ -19,7 +20,8 @@ const ResultPanel: React.FC<ResultPanelProps> = ({
   spaceComplexity, 
   timeComplexity,
   memoryUsed,
-  error 
+  error,
+  aiAnalysis
 }) => {
   return (
     <Card className="w-full h-[500px] bg-[#1A1F2C]/80 backdrop-blur-sm rounded-lg overflow-hidden animate-fadeIn border border-[#403E43]">
@@ -38,6 +40,13 @@ const ResultPanel: React.FC<ResultPanelProps> = ({
           <div className="text-emerald-400 font-mono mb-6 p-4 bg-emerald-500/10 rounded-lg">
             <h3 className="text-lg font-semibold mb-2">Output:</h3>
             <pre className="whitespace-pre-wrap">{output}</pre>
+          </div>
+        )}
+
+        {aiAnalysis && (
+          <div className="text-purple-400 font-mono mb-6 p-4 bg-purple-500/10 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">AI Analysis:</h3>
+            <pre className="whitespace-pre-wrap">{aiAnalysis}</pre>
           </div>
         )}
 
