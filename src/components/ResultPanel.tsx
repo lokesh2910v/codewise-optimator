@@ -9,6 +9,7 @@ interface ResultPanelProps {
   executionTime?: string;
   spaceComplexity?: string;
   timeComplexity?: string;
+  memoryUsed?: number; // Added for actual memory consumption
   error?: string;
 }
 
@@ -16,7 +17,8 @@ const ResultPanel: React.FC<ResultPanelProps> = ({
   output, 
   executionTime, 
   spaceComplexity, 
-  timeComplexity, 
+  timeComplexity,
+  memoryUsed,
   error 
 }) => {
   return (
@@ -54,7 +56,7 @@ const ResultPanel: React.FC<ResultPanelProps> = ({
                 <HardDrive className="w-5 h-5 text-[#9b87f5]" />
                 <h3 className="text-sm font-semibold text-[#9b87f5]">Space Consumed</h3>
               </div>
-              <p className="text-white font-mono">{spaceComplexity || 'N/A'}</p>
+              <p className="text-white font-mono">{memoryUsed ? `${memoryUsed.toFixed(2)} KB` : 'N/A'}</p>
             </div>
             
             <div className="p-4 bg-[#2A2F3C] rounded-lg transition-all hover:bg-[#323846]">
