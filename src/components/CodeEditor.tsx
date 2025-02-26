@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -52,15 +52,18 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isLoading }) => {
         <Button 
           onClick={() => onRunCode(code, language)}
           disabled={isLoading}
-          className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white w-[120px]"
+          className="bg-gradient-to-r from-[#9b87f5] to-[#6E59A5] hover:from-[#8a74f3] hover:to-[#5d4894] text-white w-[120px] font-medium"
         >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Analyze
+              Running...
             </>
           ) : (
-            'Run Code'
+            <>
+              <Play className="mr-2 h-4 w-4" />
+              Run Code
+            </>
           )}
         </Button>
       </div>
