@@ -77,11 +77,15 @@ const Index = () => {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`AI Analysis failed: ${response.statusText}`);
+      }
+
       const data = await response.json();
       return data.analysis;
     } catch (error) {
       console.error('AI Analysis error:', error);
-      return 'AI analysis unavailable at the moment.';
+      return 'AI analysis unavailable at the moment. Please try again later.';
     }
   };
 
@@ -125,6 +129,7 @@ const Index = () => {
           memoryUsed: 0,
           aiAnalysis
         });
+        toast.error('Code execution failed');
       } else {
         setResult({
           output: executionData.run.stdout,
@@ -135,6 +140,7 @@ const Index = () => {
           memoryUsed: executionData.run.memory / 1024, // Convert to KB
           aiAnalysis
         });
+        toast.success('Code executed successfully');
       }
     } catch (error) {
       console.error('Error:', error);
