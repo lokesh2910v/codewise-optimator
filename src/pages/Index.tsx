@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import CodeEditor from '@/components/CodeEditor';
 import ResultPanel from '@/components/ResultPanel';
 import { toast } from 'sonner';
-import { Clock, Infinity, ChartBar } from 'lucide-react';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +60,7 @@ const Index = () => {
 
   const getAIAnalysis = async (code: string, language: string, error: string | null, complexity: any) => {
     try {
+      console.log('Requesting AI analysis...');
       const response = await fetch('/functions/analyze-code', {
         method: 'POST',
         headers: {
@@ -77,11 +77,14 @@ const Index = () => {
         }),
       });
 
+      console.log('AI analysis response status:', response.status);
+
       if (!response.ok) {
         throw new Error(`AI Analysis failed: ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('AI analysis data:', data);
       return data.analysis;
     } catch (error) {
       console.error('AI Analysis error:', error);
@@ -94,6 +97,7 @@ const Index = () => {
     const startTime = performance.now();
 
     try {
+      console.log('Executing code...');
       const executionResponse = await fetch('https://emkc.org/api/v2/piston/execute', {
         method: 'POST',
         headers: {

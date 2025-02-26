@@ -1,21 +1,13 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const starcoderApiKey = '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';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+export async function onRequestPost(context) {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
 
   try {
-    const { code, language, error, complexity } = await req.json();
+    const { code, language, error, complexity } = await context.request.json();
+    const starcoderApiKey = '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';
 
     let prompt = error 
       ? `Analysis of the following ${language} code that produced an error:
@@ -85,4 +77,4 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-});
+}
