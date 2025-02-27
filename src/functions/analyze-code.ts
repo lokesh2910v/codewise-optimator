@@ -1,12 +1,19 @@
 
-export async function onRequestPost(context) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
 
   try {
-    const { code, language, error, complexity } = await context.request.json();
+    const { code, language, error, complexity } = await req.json();
     const openAiApiKey = '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';
 
     let prompt = error 
@@ -74,4 +81,4 @@ export async function onRequestPost(context) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-}
+});
