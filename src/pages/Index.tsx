@@ -61,31 +61,63 @@ const Index = () => {
   const getAIAnalysis = async (code: string, language: string, error: string | null, complexity: any) => {
     try {
       console.log('Requesting AI analysis...');
-      const response = await fetch('https://lovable-code-analyzer.functions.supabase.co/analyze-code', {
+      const response = await fetch('https://api-inference.huggingface.co/models/bigcode/starcoder', {
         method: 'POST',
         headers: {
+          'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          code,
-          language,
-          error,
-          complexity: {
-            timeComplexity: complexity,
-            spaceComplexity: 'O(n)',
-          },
+          inputs: error 
+            ? `Analysis of the following ${language} code that produced an error:
+               Code:
+               ${code}
+               
+               Error:
+               ${error}
+               
+               Please provide:
+               1. Error explanation
+               2. How to fix the code
+               3. Corrected version of the code`
+            : `Analysis of the following ${language} code:
+               Code:
+               ${code}
+               
+               Current complexity metrics:
+               ${JSON.stringify(complexity, null, 2)}
+               
+               Please provide:
+               1. Code explanation
+               2. Optimal solution approach
+               3. Time and space complexity analysis
+               4. Optimized version of the code (if possible)`,
+          parameters: {
+            max_new_tokens: 500,
+            temperature: 0.7,
+            top_p: 0.95,
+            return_full_text: false
+          }
         }),
       });
-
-      console.log('AI analysis response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`AI Analysis failed: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('AI analysis data:', data);
-      return data.analysis;
+      let analysis = data[0].generated_text;
+
+      // Clean up the response
+      analysis = analysis.trim();
+      if (analysis.startsWith('"')) {
+        analysis = analysis.slice(1);
+      }
+      if (analysis.endsWith('"')) {
+        analysis = analysis.slice(0, -1);
+      }
+
+      return analysis;
     } catch (error) {
       console.error('AI Analysis error:', error);
       return 'AI analysis unavailable at the moment. Please try again later.';
