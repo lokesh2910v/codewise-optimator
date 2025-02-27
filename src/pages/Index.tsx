@@ -61,7 +61,7 @@ const Index = () => {
   const getAIAnalysis = async (code: string, language: string, error: string | null, complexity: any) => {
     try {
       console.log('Requesting AI analysis...');
-      const response = await fetch('/api/analyze-code', {
+      const response = await fetch('https://lovable-code-analyzer.functions.supabase.co/analyze-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
