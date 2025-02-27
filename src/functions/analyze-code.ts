@@ -1,13 +1,13 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+export async function POST(req: NextRequest) {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -71,14 +71,15 @@ serve(async (req) => {
     const data = await response.json();
     const analysis = data.choices[0].message.content;
 
-    return new Response(JSON.stringify({ analysis }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
+    return NextResponse.json(
+      { analysis },
+      { headers: corsHeaders }
+    );
+  } catch (error: any) {
     console.error('Analysis error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to analyze code', details: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json(
+      { error: 'Failed to analyze code', details: error.message },
+      { status: 500, headers: corsHeaders }
+    );
   }
-});
+}
