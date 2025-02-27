@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import CodeEditor from '@/components/CodeEditor';
 import ResultPanel from '@/components/ResultPanel';
@@ -69,34 +68,31 @@ const Index = () => {
         },
         body: JSON.stringify({
           inputs: error 
-            ? `Analysis of the following ${language} code that produced an error:
-               Code:
+            ? `Given this ${language} code that produced an error:
                ${code}
                
-               Error:
+               Error message:
                ${error}
                
-               Please provide:
-               1. Error explanation
-               2. How to fix the code
-               3. Corrected version of the code`
-            : `Analysis of the following ${language} code:
-               Code:
+               Please provide a concise analysis with:
+               1. What caused the error
+               2. How to fix it
+               3. A corrected code example`
+            : `Given this ${language} code:
                ${code}
                
-               Current complexity metrics:
-               ${JSON.stringify(complexity, null, 2)}
+               Current complexity: ${complexity}
                
-               Please provide:
-               1. Code explanation
-               2. Optimal solution approach
-               3. Time and space complexity analysis
-               4. Optimized version of the code (if possible)`,
+               Provide a concise code review with:
+               1. Brief explanation of what the code does
+               2. Suggestions for optimization
+               3. Time & space complexity analysis`,
           parameters: {
-            max_new_tokens: 500,
-            temperature: 0.7,
-            top_p: 0.95,
-            return_full_text: false
+            max_new_tokens: 250,
+            temperature: 0.3,
+            top_p: 0.8,
+            return_full_text: false,
+            stop: ["```", "Note:", "***"]
           }
         }),
       });
@@ -109,15 +105,13 @@ const Index = () => {
       let analysis = data[0].generated_text;
 
       // Clean up the response
-      analysis = analysis.trim();
-      if (analysis.startsWith('"')) {
-        analysis = analysis.slice(1);
-      }
-      if (analysis.endsWith('"')) {
-        analysis = analysis.slice(0, -1);
-      }
+      analysis = analysis.trim()
+        .replace(/^["']|["']$/g, '') // Remove quotes at start/end
+        .replace(/Note:.*$/gm, '') // Remove any "Note:" lines
+        .replace(/\*\*\*.*$/gm, '') // Remove any "***" lines
+        .replace(/\n{3,}/g, '\n\n'); // Replace multiple newlines with double newlines
 
-      return analysis;
+      return analysis || 'Could not generate analysis. Please try again.';
     } catch (error) {
       console.error('AI Analysis error:', error);
       return 'AI analysis unavailable at the moment. Please try again later.';
